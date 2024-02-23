@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>LINEWorksVisitReportingTool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css">
+<script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6/sdk.js"></script>
+</head>
+<body>
+<form id="myForm">
+
+  <div class="form-group">
+    <label for="displayNameInput">訪問担当者:</label>
+    <input type="text" id="displayNameInput" name="displayName" required readonly>
+  </div>
+
+<div class="form-group">
+  <label for="userIdInput">LINE WORKS ID:</label>
+  <input type="text" id="userIdInput" name="userId" required readonly>
+</div>
+
+  <div class="form-group">
+    <label for="customerName">顧客名:</label>
+    <input type="text" id="customerName" name="customerName" required>
+  </div>
+
+  <div class="form-group">
+    <label for="visitDate">訪問日:</label>
+    <input type="date" id="visitDate" name="visitDate" required>
+  </div>
+
+  <div class="form-group">
+    <label for="visitTime">時刻:</label>
+    <input type="time" id="visitTime" name="visitTime" required>
+  </div>
+
+  <div class="form-group">
+    <label for="visitResult">訪問結果:</label>
+    <select id="visitResult" name="visitResult" required>
+      <option value="">選択してください</option>
+      <option value="success">成功</option>
+      <option value="pending">保留</option>
+      <option value="failed">失敗</option>
+    </select>
+  </div>
+
+<fieldset class="form-group" id="interestFieldset">
+  <legend>顧客の関心分野（複数選択可）</legend>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestNewHomes" name="customerInterest" value="newHomes">
+    <label for="interestNewHomes">新築情報</label>
+  </div>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestRenovation" name="customerInterest" value="renovation">
+    <label for="interestRenovation">リフォーム</label>
+  </div>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestLandInformation" name="customerInterest" value="landInformation">
+    <label for="interestLandInformation">土地情報</label>
+  </div>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestHomeLoan" name="customerInterest" value="homeLoan">
+    <label for="interestHomeLoan">住宅ローン</label>
+  </div>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestEcoProducts" name="customerInterest" value="ecoProducts">
+    <label for="interestEcoProducts">エコ関連製品</label>
+  </div>
+  <div class="interest-checkbox">
+    <input type="checkbox" id="interestSecuritySystem" name="customerInterest" value="securitySystem">
+    <label for="interestSecuritySystem">セキュリティシステム</label>
+  </div>
+</fieldset>
+
+  <div class="form-group">
+    <label for="visitDetails">訪問の詳細:</label>
+    <textarea id="visitDetails" name="visitDetails" rows="4" required></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="nextVisitDate">次回訪問予定日:</label>
+    <input type="date" id="nextVisitDate" name="nextVisitDate" required>
+  </div>
+
+  <div class="form-group">
+    <label for="locationToggle">位置情報取得:</label>
+    <input type="checkbox" id="locationToggle" name="locationToggle" class="js-switch">
+  </div>
+<!-- 位置情報をフォームに追加 -->
+<input type="hidden" id="latitudeInput" name="latitude">
+<input type="hidden" id="longitudeInput" name="longitude">
+
+  <button type="button" onclick="submitForm()">送信</button>
+</form>
+<script src="woff.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js"></script>
+<script>
+  var locationToggle = document.querySelector('.js-switch');
+  var switchery = new Switchery(locationToggle);
+
+  // 位置情報取得のトグルスイッチの状態が変更された時に位置情報を取得する関数
+  function getLocation() {
+    if (locationToggle.checked) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        alert("このブラウザでは位置情報の取得がサポートされていません。");
+      }
+    }
+  }
+
+  // 位置情報を表示する関数
+  function showPosition(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    // 緯度と経度をフォームに追加
+    document.getElementById('latitudeInput').value = latitude;
+    document.getElementById('longitudeInput').value = longitude;
+  }
+
+  // アクセス許可が与えられた場合に位置情報を取得するイベントリスナーを追加
+  locationToggle.addEventListener('change', getLocation);
+
+  window.onload = function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = ('0' + (now.getMonth() + 1)).slice(-2);
+    var day = ('0' + now.getDate()).slice(-2);
+    var hours = ('0' + now.getHours()).slice(-2);
+    var minutes = ('0' + now.getMinutes()).slice(-2);
+
+    // 現在の日付と時刻のフィールドに既定値を設定
+    document.getElementById('visitDate').value = year + '-' + month + '-' + day;
+    document.getElementById('visitTime').value = hours + ':' + minutes;
+
+    // 10日後の日付を計算
+    var nextVisitDate = new Date();
+    nextVisitDate.setDate(now.getDate() + 10); // 10日後
+    var nextYear = nextVisitDate.getFullYear();
+    var nextMonth = ('0' + (nextVisitDate.getMonth() + 1)).slice(-2);
+    var nextDay = ('0' + nextVisitDate.getDate()).slice(-2);
+
+    // 次回訪問予定日のフィールドに既定値を設定
+    document.getElementById('nextVisitDate').value = nextYear + '-' + nextMonth + '-' + nextDay;
+  };
+</script>
+
+</body>
+</html>
