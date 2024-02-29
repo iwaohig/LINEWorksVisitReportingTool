@@ -127,16 +127,21 @@
 window.onload = function() {
   var now = new Date();
 
-  // 現在の日時をISO文字列に変換し、日付と時刻の部分のみを取得（"YYYY-MM-DDTHH:MM"形式）
-  var currentDateTimeLocal = now.toISOString().slice(0, 16);
+  // ローカルタイムゾーンのオフセットをミリ秒で取得し、UTCに変換後、日本時間(JST, UTC+9)に調整
+  var offset = now.getTimezoneOffset() * 60000; // ローカルタイムゾーンのオフセットをミリ秒で取得
+  var jstOffset = 9 * 60 * 60000; // JSTのオフセット（UTC+9）をミリ秒で計算
+  var nowJST = new Date(now - offset + jstOffset); // 現在時刻をJSTに変換
+
+  // 現在の日時（JST）をISO文字列に変換し、"YYYY-MM-DDTHH:MM"形式で取得
+  var currentDateTimeLocal = nowJST.toISOString().slice(0, 16);
 
   // 現在の日付と時刻のフィールドに既定値を設定
   document.getElementById('visitDate').value = currentDateTimeLocal.slice(0, 10); // "YYYY-MM-DD"部分を抽出
   document.getElementById('visitTime').value = currentDateTimeLocal.slice(11, 16); // "HH:MM"部分を抽出
 
-  // 10日後の日時を計算し、ISO文字列に変換してから"YYYY-MM-DDTHH:MM"形式で取得
-  var nextVisitDateTime = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)); // 現在時刻に10日加算
-  var nextDateTimeLocal = nextVisitDateTime.toISOString().slice(0, 16);
+  // 10日後の日時（JST）を計算し、ISO文字列に変換してから"YYYY-MM-DDTHH:MM"形式で取得
+  var nextVisitDateTimeJST = new Date(nowJST.getTime() + (10 * 24 * 60 * 60 * 1000)); // 10日後
+  var nextDateTimeLocal = nextVisitDateTimeJST.toISOString().slice(0, 16);
 
   // 次回訪問予定日時のフィールドに既定値を設定
   document.getElementById('nextVisitDateTime').value = nextDateTimeLocal;
