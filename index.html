@@ -79,10 +79,10 @@
     <textarea id="visitDetails" name="visitDetails" rows="4" required></textarea>
   </div>
 
-  <div class="form-group">
-    <label for="nextVisitDate">次回訪問予定日:</label>
-    <input type="date" id="nextVisitDate" name="nextVisitDate" required>
-  </div>
+<div class="form-group">
+  <label for="nextVisitDateTime">次回訪問予定日時:</label>
+  <input type="datetime-local" id="nextVisitDateTime" name="nextVisitDateTime" required>
+</div>
 
   <div class="form-group">
     <label for="locationToggle">位置情報取得:</label>
@@ -124,28 +124,23 @@
   // アクセス許可が与えられた場合に位置情報を取得するイベントリスナーを追加
   locationToggle.addEventListener('change', getLocation);
 
-  window.onload = function() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = ('0' + (now.getMonth() + 1)).slice(-2);
-    var day = ('0' + now.getDate()).slice(-2);
-    var hours = ('0' + now.getHours()).slice(-2);
-    var minutes = ('0' + now.getMinutes()).slice(-2);
+window.onload = function() {
+  var now = new Date();
 
-    // 現在の日付と時刻のフィールドに既定値を設定
-    document.getElementById('visitDate').value = year + '-' + month + '-' + day;
-    document.getElementById('visitTime').value = hours + ':' + minutes;
+  // 現在の日時をISO文字列に変換し、日付と時刻の部分のみを取得（"YYYY-MM-DDTHH:MM"形式）
+  var currentDateTimeLocal = now.toISOString().slice(0, 16);
 
-    // 10日後の日付を計算
-    var nextVisitDate = new Date();
-    nextVisitDate.setDate(now.getDate() + 10); // 10日後
-    var nextYear = nextVisitDate.getFullYear();
-    var nextMonth = ('0' + (nextVisitDate.getMonth() + 1)).slice(-2);
-    var nextDay = ('0' + nextVisitDate.getDate()).slice(-2);
+  // 現在の日付と時刻のフィールドに既定値を設定
+  document.getElementById('visitDate').value = currentDateTimeLocal.slice(0, 10); // "YYYY-MM-DD"部分を抽出
+  document.getElementById('visitTime').value = currentDateTimeLocal.slice(11, 16); // "HH:MM"部分を抽出
 
-    // 次回訪問予定日のフィールドに既定値を設定
-    document.getElementById('nextVisitDate').value = nextYear + '-' + nextMonth + '-' + nextDay;
-  };
+  // 10日後の日時を計算し、ISO文字列に変換してから"YYYY-MM-DDTHH:MM"形式で取得
+  var nextVisitDateTime = new Date(now.getTime() + (10 * 24 * 60 * 60 * 1000)); // 現在時刻に10日加算
+  var nextDateTimeLocal = nextVisitDateTime.toISOString().slice(0, 16);
+
+  // 次回訪問予定日時のフィールドに既定値を設定
+  document.getElementById('nextVisitDateTime').value = nextDateTimeLocal;
+};
 </script>
 
 </body>
